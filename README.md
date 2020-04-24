@@ -41,12 +41,35 @@ As mentioned, Kubernetes will be used. The [docs](https://kubernetes.io/docs/set
 1. Click that link
 1. The command will resemble: `edgectl login --namespace=ambassador IP_ADDRESS:SSL_PORT`
 
+# Using Ambassador
+Before using Ambassador, let's cover some concepts.
+
+These are Kubernetes concepts:
+*  A Service is an abstraction which defines a logical set of Pods.
+*  A Deployment provides declarative updates for Pods and ReplicaSets.
+*  A Pod is created because the deployment includes "template" section.
+*  A Pod is the basic execution unit of a Kubernetes application–the smallest 
+*  and simplest unit in the Kubernetes object model that you create or deploy. 
+*  A Pod represents processes running on your cluster.
+*  A Pod running a single container is the most common use case.
+*  A Pod can run multiple containers and is an advanced use case.
+
+A Service, Deployment, and Pod are different kinds of built-in resources in Kubernetes. AES has created its own resources. This is
+done using Kubernetes Custom Resource Definition (CRDs).
+
 ## Add a proxy
 1. Install the quote service according to [these](https://www.getambassador.io/docs/latest/tutorials/quickstart-demo/) instructions.
+1. Create service and deployment: `kubectl apply -f configuration/quote-service.yaml`
+1. Create mapping: `kubectl apply -f configuration/quote-mapping.yaml`
+1. Test mapping: `curl -ik https://IP_ADDRESS:SSL_PORT/backend/`
+
+
+## Use your own Dev Portal
+1. Fork this repo:
+1. Why? AES deploys the Dev Portal based on the UI and related code that is available at a repository.
 
 ## Dev Portal
 1. https://IP_ADDRESS:SSL_PORT/docs/
 
 # References
 * https://www.getambassador.io
-* 

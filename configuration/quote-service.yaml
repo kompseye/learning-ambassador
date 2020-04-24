@@ -1,0 +1,54 @@
+# Instructions ################################################################
+# Create a service and deployment.
+#   create/apply resources: kubectl apply -f quote-service.yaml 
+#   verify these resources: kubectl get -f quote-service.yaml 
+#   get pod info:           kubectl get pod --all-namespaces
+#   verify deployment:      kubectl get deployments --all-namespaces
+#   verify service:         kubectl get services --all-namespaces
+#   describe deployment:    kubectl describe deployments -n ambassador quote
+#   describe service:       kubectl describe service -n ambassador quote
+#   delete service:         kubectl delete -f quote-service.yaml 
+###############################################################################
+
+# References ##################################################################
+# https://www.getambassador.io/docs/latest/tutorials/quickstart-demo/
+# https://kubernetes.io/docs/concepts/services-networking/service/
+# https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#deployment-status 
+###############################################################################
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: quote
+  namespace: ambassador
+spec:
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8080
+  selector:
+    app: quote
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quote
+  namespace: ambassador
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: quote
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: quote
+    spec:
+      containers:
+      - name: backend
+        image: quay.io/datawire/quote:0.3.0
+        ports:
+        - name: http
+          containerPort: 8080

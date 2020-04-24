@@ -1,0 +1,22 @@
+# Instructions ################################################################
+# Create a service and deployment.
+#   create/apply resources: kubectl apply -f quote-mapping.yaml 
+#   verify these resources: kubectl get -f quote-mapping.yaml 
+#   verify mapping:         kubectl get mappings -n ambassador
+#   run this curl:          curl -ik https://IP_ADDRESS:SSL_PORT/backend/
+#                           curl -sk https://IP_ADDRESS:SSL_PORT/backend/ | jq
+#   delete resources:       kubectl delete -f quote-mapping.yaml 
+###############################################################################
+
+# References ##################################################################
+# https://www.getambassador.io/docs/latest/tutorials/quickstart-demo/
+###############################################################################
+---
+apiVersion: getambassador.io/v2
+kind: Mapping
+metadata:
+  name: quote-backend
+  namespace: ambassador
+spec:
+  prefix: /backend/
+  service: quote
