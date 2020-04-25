@@ -1,0 +1,69 @@
+# Instructions ################################################################
+# Create a service and deployment.
+#   create/apply resources:             kubectl apply -f auth-service.yaml
+#   verify these resources:             kubectl get -f auth-service.yaml
+#   get pod info:                       kubectl get pod --all-namespaces
+#   verify deployment:                  kubectl get deployments --all-namespaces
+#   verify service:                     kubectl get services --all-namespaces
+#   describe deployment:                kubectl describe deployments -n ambassador example-auth
+#   describe service:                   kubectl describe service -n ambassador example-auth
+#   delete service:                     kubectl delete -f auth-service.yaml
+# Optional
+#   expose deployment:                  kubectl expose deployment -n ambassador example-auth --type=LoadBalancer --name=my-example-auth
+#   verify deployment:                  kubectl get services -n ambassador
+#   locate the IP:PORT:                 minikube service list -n ambassador     
+#   identify pod name:                  kubectl get pods -n ambassador
+#   tail the logs:                      kubectl logs --follow -n ambassador pod-name-from-previous-step
+#   verify 401:                         curl -i http://IP:PORT/extauth/backend/get-quote/
+#   verify 200 b/c creds are correct:   curl -i -u username:password http://IP:PORT/extauth/backend/get-quote/
+#   verify 200 b/c path does not apply: curl -i http://IP:PORT/this-path-is-a-passthrough
+#   delete deployment:                  kubectl delete service -n ambassador my-example-auth
+###############################################################################
+
+# References ##################################################################
+# https://www.getambassador.io/docs/latest/howtos/basic-auth/
+# 
+###############################################################################
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: example-auth
+  namespace: ambassador
+spec:
+  type: ClusterIP
+  selector:
+    app: example-auth
+  ports:
+  - port: 3000
+    name: http-example-auth
+    targetPort: http-api
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: example-auth
+  namespace: ambassador
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: example-auth
+  template:
+    metadata:
+      labels:
+        app: example-auth
+    spec:
+      containers:
+      - name: example-auth
+        image: datawire/ambassador-auth-service:2.0.0
+        imagePullPolicy: Always
+        ports:
+        - name: http-api
+          containerPort: 3000
+        resources:
+          limits:
+            cpu: "0.1"
+            memory: 100Mi

@@ -63,9 +63,15 @@ done using Kubernetes Custom Resource Definition (CRDs).
 1. Create mapping: `kubectl apply -f configuration/quote-mapping.yaml`
 1. Test mapping: `curl -ik https://IP_ADDRESS:SSL_PORT/backend/`
 
+## Add authentication
+1. Deploy authentication service according to [these](https://www.getambassador.io/docs/latest/howtos/basic-auth/) instructions.
+1. Create service and deployment: `kubectl apply -f auth-service.yaml`
+1. Create the filter mapping and filter policy: `kubectl apply -f auth-filter.yaml`
+1. Confirm 401: `curl -ik https://IP_ADDRESS:SSL_PORT/backend/get-quote/`
+1. Supply creds: `curl -k -u username:password https://IP_ADDRESS:SSL_PORT/backend/get-quote/`
 
 ## Use your own Dev Portal
-1. Fork this repo:
+1. Fork this repo: TBD
 1. Why? AES deploys the Dev Portal based on the UI and related code that is available at a repository.
 
 ## Dev Portal

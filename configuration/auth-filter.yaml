@@ -1,0 +1,52 @@
+# Instructions ################################################################
+# Create a service and deployment.
+#   create/apply resources: kubectl apply -f auth-filter.yaml
+#   verify these resources: kubectl get -f auth-filter.yaml
+#   get filter info:        kubectl get filter --all-namespaces
+#   get filter policy:      kubectl get filterpolicy --all-namespaces
+#
+# Once filter and filter policy is in place, then matched requests go through
+# authentication service.
+#   confirm 401:            curl -ik https://IP_ADDRESS:SSL_PORT/backend/get-quote/
+#   supply creds:           curl -k -u username:password https://IP_ADDRESS:SSL_PORT/backend/get-quote/
+#
+#   delete resource:        kubectl delete -f auth-filter.yaml
+###############################################################################
+
+# References ##################################################################
+# https://www.getambassador.io/docs/latest/howtos/basic-auth/
+# https://www.getambassador.io/docs/latest/topics/using/filters/external/
+###############################################################################
+---
+apiVersion: getambassador.io/v2
+kind: Filter
+metadata:
+  name: "example-external-filter"
+  namespace: "ambassador"
+spec:
+  External:
+    auth_service: "example-auth:3000"
+    # calls to the example-auth service will be prepended with /extauth
+    # this is a special path that is part of the example-auth service code itself
+    # reference
+    #   https://github.com/datawire/ambassador-auth-service
+    #   https://github.com/datawire/ambassador-auth-service/blob/master/server.js
+    path_prefix: "/extauth"
+    status_on_error:
+      code: 500
+    allowed_request_headers:
+    - "x-qotm-session"
+    allowed_authorization_headers:
+    - "x-qotm-session"
+---
+apiVersion: getambassador.io/v2
+kind: FilterPolicy
+metadata:
+  name: "example-filter-policy"
+  namespace: "ambassador"
+spec:
+  rules:
+  - host: "*"
+    path: "/backend/*"
+    filters:
+    - name: "example-external-filter"
