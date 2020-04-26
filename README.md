@@ -70,6 +70,13 @@ done using Kubernetes Custom Resource Definition (CRDs).
 1. Confirm 401: `curl -ik https://IP_ADDRESS:SSL_PORT/backend/get-quote/`
 1. Supply creds: `curl -k -u username:password https://IP_ADDRESS:SSL_PORT/backend/get-quote/`
 
+## Add rate limit
+1. Create mapping: `kubectl apply -f configuration/quote-mapping-ratelimited.yaml`
+1. Create the ratelimits: `kubectl apply -f configuration/quote-mapping-ratelimited.yaml`
+1. Test mapping: `curl -ik https://IP_ADDRESS:SSL_PORT/backend/`
+1. After 3rd request, HTTP Code 429 Too Many Requests is returned.
+1. At next new minute, the rate limit is reset.
+
 ## Use your own Dev Portal
 1. Fork this repo: TBD
 1. Why? AES deploys the Dev Portal based on the UI and related code that is available at a repository.

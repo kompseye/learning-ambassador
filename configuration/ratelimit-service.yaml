@@ -1,0 +1,25 @@
+# Instructions ################################################################
+# Create a RateLimitService (Ambassador CRD).
+#   create/apply resources:             kubectl apply -f ratelimit-service.yaml
+#   verify these resources:             kubectl get -f ratelimit-service.yaml
+#   delete service:                     kubectl delete -f ratelimit-service.yaml
+###############################################################################
+
+# References ##################################################################
+# https://www.getambassador.io/docs/latest/howtos/advanced-rate-limiting/
+# https://www.getambassador.io/docs/latest/topics/using/rate-limits/
+###############################################################################
+---
+apiVersion: getambassador.io/v2
+kind: RateLimit
+metadata:
+  name: ratelimit
+spec:
+  domain: ambassador
+  limits:
+   # if there are multiple labels in a label group, then all labels must match (boolean: AND)
+   - pattern: [{generic_key: quote-backend}, {backend_http_method: GET}]
+   # if there is a single label in a label group, and multiple label groups, then any label is a match (boolean: OR)
+   #- pattern: [{generic_key: quote-backend, backend_http_method: GET}]
+     rate: 3
+     unit: minute

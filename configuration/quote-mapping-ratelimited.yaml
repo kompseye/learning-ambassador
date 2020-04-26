@@ -1,0 +1,35 @@
+# Instructions ################################################################
+# Create a service and deployment.
+#   create/apply resources: kubectl apply -f quote-mapping-ratelimited.yaml
+#   verify these resources: kubectl get -f quote-mapping-ratelimited.yaml
+#   verify mapping:         kubectl get mappings -n ambassador
+#   run this curl:          curl -ik https://IP_ADDRESS:SSL_PORT/backend/
+#                           curl -sk https://IP_ADDRESS:SSL_PORT/backend/ | jq
+#   delete resources:       kubectl delete -f quote-mapping-ratelimited.yaml
+###############################################################################
+
+# References ##################################################################
+# https://www.getambassador.io/docs/latest/tutorials/quickstart-demo/
+# https://www.getambassador.io/docs/latest/howtos/advanced-rate-limiting/
+###############################################################################
+---
+apiVersion: getambassador.io/v2
+kind: Mapping
+metadata:
+  name: quote-backend
+  namespace: ambassador
+spec:
+  prefix: /backend/
+  service: quote
+  labels:
+    ambassador:    
+      - request_label_group:      
+        - quote-backend
+        - backend_http_method:
+            header: ":method"
+            omit_if_not_present: true
+      # alternate example of label group
+      # - method_label_group:
+      #         - backend_http_method:
+      #             header: ":method"
+      #             omit_if_not_present: true                
